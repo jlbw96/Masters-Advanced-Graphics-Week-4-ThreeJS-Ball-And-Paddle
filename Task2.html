@@ -1,7 +1,7 @@
 <!doctype html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1"> 
-    <title>My first Three.js app</title>
+    <title>Ball and Paddle</title>
     <style>
         body { margin: 0; }
         canvas { width: 100%; height: 100% }
@@ -63,7 +63,10 @@ Comment and/or complete the following subtasks:
 		infoText.innerHTML = "Use arrow keys to move left and right. Collect the ball!";
         infoText.style.fontSize = "x-large";
 		document.body.appendChild(infoText);
-       
+		
+		
+		var scoreText;
+		var resultText;
         var result = "";   
 		var score = 0;
         var renderer = new THREE.WebGLRenderer({antialias: true});
@@ -72,6 +75,35 @@ Comment and/or complete the following subtasks:
 
         // define the scene 			
         var scene = new Physijs.Scene();
+		
+		function loadText()
+		{
+		scoreText = document.createElement('div');
+		scoreText.style.position = 'absolute';
+		scoreText.style.width = 20;
+		scoreText.style.height = 20;
+		//scoreText.style.backgroundColor = "blue";
+		scoreText.style.color = "white";
+		scoreText.innerHTML = "Score: " + score;
+		scoreText.style.top = 50 + 'px';
+		scoreText.style.left = 50 + 'px';
+		scoreText.style.fontSize = "x-large";
+		document.body.appendChild(scoreText);
+		
+		resultText = document.createElement('div');
+		resultText.style.position = 'absolute';
+		resultText.style.width = 1;
+		resultText.style.height = 1;
+		resultText.style.color = "red";
+		//resultText.style.backgroundColor = "blue";
+		resultText.innerHTML = result;
+		resultText.style.top = height /2 + 'px';
+		resultText.style.left = width /3 + 'px';
+		resultText.style.fontSize = "xx-large";
+		document.body.appendChild(resultText);
+		}
+		//Call the function above to load the text
+		loadText();
 
         var paddleGeometry = new THREE.BoxGeometry(2, 0.4, 1);
         var paddleMaterial = new THREE.MeshBasicMaterial({color: 0xccffaa});
@@ -116,16 +148,33 @@ Comment and/or complete the following subtasks:
             else { // hit the floor instead!
                 score--;
             }
-            
+			//As the ball bounces it usually will reach
+			// -5 as a score which would be too low
+			//so this will make the value -1 if it tries to go lower
+			if (score <= -1)
+			{
+			score = -1;
+			}
             if(score === 10){
+				//update both the score and result texts
+				scoreText.innerHTML = "Score: " + score;
                 result = "You won!";
             }
             else if(score < 0) {
+				//display the lost result text
                 result = "You lost!";
             }
             else {
+				//if no win or lose condition has been met
+				//update scoretext and release the ball again
+				scoreText.innerHTML = "Score: " + score;
                 releaseBall();
             }
+			//otherwise just update the result text
+			//This will be blank until the score reaches -1 or 10
+			//Therefore this will be invisible till the player wins
+			//or loses the game
+			resultText.innerHTML = result;
         }
 
         // define the camera from which the scene will be rendered and seen
@@ -143,13 +192,13 @@ Comment and/or complete the following subtasks:
                 switch( keyEvent.keyCode ) {
                     case 37:
                         // Left
-                        cart.position.x -= 1;
-                        cart.__dirtyPosition = true;
+                        paddle.position.x -= 1;
+                        paddle.__dirtyPosition = true;
                         break;
                     case 39:
                         // Right
-                        cart.position.x += 1;
-                        cart.__dirtyPosition = true;
+                        paddle.position.x += 1;
+                        paddle.__dirtyPosition = true;
                         break;
                 }
             }
